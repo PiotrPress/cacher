@@ -2,31 +2,36 @@
 
 namespace PiotrPress;
 
-class Cacher {
-    public function __construct( protected string $file ) {}
+class Cacher implements CacheInterface {
+    protected array $data = [];
 
-    public function get( string $key, callable $callback ) {
-        $data = $this->load();
-        if ( isset( $data[ $key ] ) ) return $data[ $key ];
+    public function __construct(
+        protected string $file
+    ) {
+        $this->load();
+    }
 
-        $data[ $key ] = \call_user_func( $callback );
-        $this->save( $data );
-        return $data[ $key ];
+    public function get( string $key, callable $callback, mixed ...$args ) : mixed {
+        if ( isset( $this->data[ $key ] ) ) return $this->data[ $key ];
+
+        $this->data[ $key ] = \call_user_func( $callback, ...$args );
+        $this->save();
+
+        return $this->data[ $key ];
     }
 
     public function clear( string $key = null ) : bool {
-        if ( ! $key ) return @\unlink( $this->file );
+        if ( $key ) unset( $this->data[ $key ] );
+        else $this->data = [];
 
-        $data = $this->load();
-        unset( $data[ $key ] );
-        return $this->save( $data );
+        return $this->save();
     }
 
-    protected function load() : array {
-        return \is_file( $this->file ) ? require( $this->file ) : [];
+    protected function load() : void {
+        $this->data = \is_file( $this->file ) ? @\unserialize( @\file_get_contents( $this->file ) ) : [];
     }
 
-    protected function save( array $data ) : bool {
-        return (bool)@\file_put_contents( $this->file, \sprintf( '<?php return %s;', \var_export( $data, true ) ) );
+    protected function save() : bool {
+        return (bool)@\file_put_contents( $this->file, @\serialize( $this->data ) );
     }
 }

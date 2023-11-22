@@ -17,11 +17,11 @@ use PiotrPress\Cacher;
 
 $cache = new Cacher( '.cache' );
 
-$value = $cache->get( 'key', function () {
-    return 'value';
-} );
+$value = $cache->get( 'hi', function ( $arg1, $arg2 ) {
+    return "$arg1 $arg2";
+}, 'Hello', 'world!' );
 
-$cache->clear( 'key' ); // clear cache for key
+$cache->clear( 'hi' ); // clear cache for "hi" key
 $cache->clear(); // clear all cache
 ```
 
