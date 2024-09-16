@@ -14,14 +14,12 @@
     "cacher", "cache"
   ],
   "require": {
-    "php": ">=8.0"
+    "php": ">=7.4"
   },
   "autoload": {
     "psr-4": {
       "PiotrPress\\": "src/"
     },
-    "classmap": [
-      "src"
-    ]
+    "classmap": [ "src" ]
   }
 }
